@@ -13,6 +13,7 @@ declare global {
           alt?: string;
           ar?: boolean;
           "ar-modes"?: string;
+          "ar-scale"?: string;
           "camera-controls"?: boolean;
           "auto-rotate"?: boolean;
           "shadow-intensity"?: string | number;
