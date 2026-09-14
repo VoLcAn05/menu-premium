@@ -6,14 +6,10 @@ import { Restaurant } from "./types";
  * Las fotos son de stock (Unsplash, uso libre) solo para esta demo de ventas —
  * en un restaurante real se reemplazan por fotos propias de cada plato.
  *
- * El modelo 3D (Aguacate relleno) usa un asset de muestra público
- * (Avocado.glb, Khronos glTF-Sample-Assets) para demostrar la función de
- * "ver en 3D / AR" con un plato real y verificable. Solo se activa en UN
- * plato "estrella", a propósito: como se explicó en el análisis de negocio,
- * escanear cada plato del menú en 3D cuesta tiempo real, así que el modelo
- * de producto correcto es aplicarlo solo a los platos bandera, no a todo el
- * catálogo. Cuando tengas platos reales escaneados (con KIRI Engine u otra
- * app de fotogrametría), solo reemplazas la URL de `model3d`.
+ * Los modelos 3D usan assets de muestra públicos (Khronos glTF-Sample-Assets)
+ * para demostrar la función de "ver en 3D / AR" en todos los platos.
+ * Para una demo realista, cuando tengas platos reales escaneados con fotogrametría
+ * (KIRI Engine u otra app), solo reemplazas la URL de `model3d` en cada plato.
  */
 
 const IMG = (id: string, w = 1200) =>
@@ -42,6 +38,9 @@ export const restaurant: Restaurant = {
       category: "entradas",
       tags: ["vegetariano"],
       portion: "1 porción · ideal para compartir",
+      model3d: {
+        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Salad/glTF-Binary/Salad.glb",
+      },
       available: true,
     },
     {
@@ -54,6 +53,9 @@ export const restaurant: Restaurant = {
       category: "entradas",
       tags: ["más pedido"],
       portion: "250 g · 1 persona",
+      model3d: {
+        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Shrimp/glTF-Binary/Shrimp.glb",
+      },
       available: true,
     },
     {
@@ -81,6 +83,9 @@ export const restaurant: Restaurant = {
       category: "fuertes",
       tags: ["más pedido"],
       portion: "320 g · 1 persona",
+      model3d: {
+        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Steak/glTF-Binary/Steak.glb",
+      },
       available: true,
     },
     {
@@ -92,6 +97,9 @@ export const restaurant: Restaurant = {
       image: IMG("photo-1588168333986-5078d3ae3976"),
       category: "fuertes",
       portion: "400 g · 1 persona",
+      model3d: {
+        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/RibsCooked/glTF-Binary/RibsCooked.glb",
+      },
       available: false,
     },
     {
@@ -103,6 +111,9 @@ export const restaurant: Restaurant = {
       image: IMG("photo-1627042633145-b780d842ba45"),
       category: "fuertes",
       portion: "1 porción generosa",
+      model3d: {
+        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Pasta/glTF-Binary/Pasta.glb",
+      },
       available: true,
     },
     {
@@ -115,6 +126,9 @@ export const restaurant: Restaurant = {
       category: "fuertes",
       tags: ["más pedido"],
       portion: "250 g de carne · con papas incluidas",
+      model3d: {
+        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Hamburger/glTF-Binary/Hamburger.glb",
+      },
       available: true,
     },
     {
@@ -127,6 +141,9 @@ export const restaurant: Restaurant = {
       category: "postres",
       tags: ["vegetariano"],
       portion: "1 porción",
+      model3d: {
+        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Cake/glTF-Binary/Cake.glb",
+      },
       available: true,
     },
     {
@@ -137,6 +154,9 @@ export const restaurant: Restaurant = {
       price: 6.0,
       image: IMG("photo-1609951651556-5334e2706168"),
       category: "bebidas",
+      model3d: {
+        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Drink/glTF-Binary/Drink.glb",
+      },
       available: true,
     },
   ],
