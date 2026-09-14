@@ -31,8 +31,9 @@ export function Model3D({
       auto-rotate
       shadow-intensity="1.1"
       exposure="1.05"
-      ar={usdz ? true : undefined}
+      ar
       ar-modes="scene-viewer quick-look webxr"
+      ar-scale="fixed"
       loading="eager"
       reveal="auto"
       onError={() => setErrored(true)}
