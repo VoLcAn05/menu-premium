@@ -26,11 +26,13 @@ const BIENVENIDA: Mensaje = {
   rol: "assistant",
   texto:
     "Buenas. Conozco la carta completa: qué lleva cada plato, alérgenos, " +
-    "cuánto rinde y qué combina con qué. ¿Qué se te antoja?",
+    "cuánto rinde, calorías y macros, qué se le puede quitar y con qué " +
+    "combina. También al revés: «algo sin cebolla», «nada frito», «algo " +
+    "por menos de 10».",
   sugerencias: [
     "¿Qué me recomiendas?",
-    "Algo sin gluten",
-    "¿Qué lleva el ceviche?",
+    "Algo sin cebolla",
+    "¿Cuántas calorías tiene la hamburguesa?",
   ],
 };
 

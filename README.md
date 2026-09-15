@@ -8,11 +8,14 @@ aumentada, asistente que conoce el menú y comanda en vivo hacia cocina.
 1. **Carta del comensal** (`/r/fogon-barines?mesa=4`). Los nueve platos con
    vista 3D interactiva y proyección en la mesa a tamaño real. Carrito,
    envío a cocina y seguimiento del estado del pedido.
-2. **Asistente de sala.** Responde sobre ingredientes, alérgenos, dietas,
-   precios, porciones, tiempos de preparación y maridajes, y sugiere qué
-   agregar a lo ya pedido.
-3. **Pantalla de cocina** (`/cocina`). Tablero en vivo con sonido de alerta.
-4. **Generador de QR por mesa** (`/admin/mesas`), listo para imprimir.
+2. **Asistente de sala.** Ingredientes, alérgenos, dietas, precios,
+   porciones y gramajes, macros, tiempos, qué se le puede quitar a cada
+   plato y maridajes; y sugiere qué agregar a lo ya pedido. También busca
+   al revés: "algo sin cebolla", "nada frito", "algo por menos de 10".
+3. **Macros por plato.** Calorías y reparto de proteína, carbohidratos,
+   grasa y fibra en cada ficha, calculados desde la receta.
+4. **Pantalla de cocina** (`/cocina`). Tablero en vivo con sonido de alerta.
+5. **Generador de QR por mesa** (`/admin/mesas`), listo para imprimir.
 
 ## Cómo correrlo
 
@@ -39,22 +42,63 @@ Dos piezas sostienen ese comportamiento y conviene no tocarlas a ciegas:
 - `touch-action="none"`. Sin eso el navegador se queda con el gesto vertical
   para hacer scroll y el plato solo gira en horizontal.
 
-Son modelos hechos a propósito para esta demo: correctos en tamaño,
-proporción y composición del plato, pero no fotorrealistas. **Para un
-restaurante real, el salto de calidad está en escanear sus platos de
-verdad** con una app de fotogrametría (Polycam o KIRI Engine, ambas exportan
-`.glb` desde el teléfono) y cambiar la ruta del archivo en `lib/data.ts`.
-Una carta con los platos reales del restaurante es el argumento de venta;
-modelos de catálogo no lo son.
+Cada pieza de comida lleva textura procedural (veta de la carne, marcas de
+parrilla, poro del pan, ondas del ganache), superficie desplazada con ruido
+para que nada se vea liso de fábrica, y rugosidad propia: un glaseado de
+BBQ refleja como algo mojado y un pan no.
+
+Se generan con los scripts de `herramientas/`, sin dependencias más allá de
+numpy y Pillow:
+
+```bash
+python3 herramientas/build2.py      # reconstruye los 9 .glb
+python3 herramientas/validate2.py   # escala real, apoyo en y=0, texturas
+python3 herramientas/render2.py     # hoja de contactos para revisarlos
+```
+
+Detalles de peso que importan en una carta por QR, que se abre con datos
+móviles: las texturas se embeben en JPEG y no en PNG (son ruido, donde PNG
+no comprime), y los índices van a 16 bits. Entre las dos cosas el conjunto
+baja de unos 6 MB a 3,4 MB.
+
+Aun así **son modelos, no fotografías**: correctos en tamaño, proporción y
+composición, bastante más creíbles que la primera versión, pero no
+fotorrealistas. **Para un restaurante real el salto de calidad está en
+escanear sus platos de verdad** con una app de fotogrametría (Polycam o
+KIRI Engine, ambas exportan `.glb` desde el teléfono) y cambiar la ruta del
+archivo en `lib/data.ts`. Una carta con los platos reales del restaurante
+es el argumento de venta; modelos genéricos no lo son.
 
 ## El asistente
 
 `lib/assistant.ts` resuelve las preguntas contra `lib/data.ts` y redacta la
 respuesta. No usa servicios externos, no cuesta nada y **no puede inventar
 un plato, un precio ni un ingrediente**, porque solo sabe lo que está en los
-datos. Entiende ingredientes, alérgenos, dietas, presupuesto, antojos
-("algo ligero", "tengo hambre"), porciones, tiempos, comparaciones entre
-platos, disponibilidad y maridajes.
+datos.
+
+Entiende, sin nombrar necesariamente el plato: ingredientes, alérgenos,
+dietas (y dos condiciones a la vez, tipo "sin gluten y sin mariscos"),
+exclusiones por ingrediente ("algo sin cebolla", "mi hijo no come picante
+ni cebolla", "nada frito"), búsqueda por ingrediente, macros y calorías
+—de un plato o comparando toda la carta—, porciones y gramajes, qué admite
+cambiar la cocina, presupuesto, antojos ("algo ligero", "para un niño",
+"alto en proteína"), superlativos ("el más barato", "el que más rinde por
+lo que cuesta"), tiempos, comparaciones, disponibilidad y maridajes.
+
+Lo que NO sabe lo dice: wifi, pagos, reservas, la cuenta y horarios los
+deriva al mesero en vez de inventárselos.
+
+Hay un banco de pruebas con 66 preguntas reales, cada una con lo que la
+respuesta tiene y no tiene que contener:
+
+```bash
+node herramientas/test_assistant.mjs
+```
+
+Merece la pena ejecutarlo después de tocar el motor, porque los fallos que
+saca no son teóricos: así apareció que el alias "ron" del coctel encajaba
+dentro de "camarones", y la pregunta "¿qué platos llevan camarones?" se
+contestaba hablando de la bebida.
 
 Si quieres que redacte con más naturalidad, define `ANTHROPIC_API_KEY` en
 las variables de entorno de Vercel. El endpoint le pasa el mismo menú como
@@ -63,8 +107,24 @@ clave todo sigue funcionando igual.
 
 Para darle conocimiento sobre un plato se edita su entrada en `lib/data.ts`,
 nunca el código del chatbot. Los campos `ingredientes`, `alergenos`,
-`picante`, `minutos`, `personas`, `perfil`, `combina` y `nota` son
-exactamente lo que el asistente usa para responder.
+`picante`, `minutos`, `personas`, `gramos`, `macros`, `ajustes`, `perfil`,
+`combina` y `nota` son exactamente lo que el asistente usa para responder.
+
+## Los macros
+
+Están en `macros` de cada plato y se calculan con `herramientas/macros.py`:
+el gramaje real de cada receta por valores de referencia por 100 g (USDA
+FoodData Central para los alimentos básicos). Para cambiarlos se edita la
+receta en ese script y se vuelve a ejecutar; el script además comprueba
+cada plato contra la regla 4/4/9 kcal por gramo, que es lo que detecta un
+error de tecleo en la tabla.
+
+**Son estimaciones, y la interfaz lo dice en cada ficha.** El aceite que
+absorbe una fritura o la mano del cocinero con la salsa mueven esto con
+facilidad un 15%. Para publicarlos como información nutricional oficial
+hace falta pesar las recetas propias, y en varios países eso activa
+obligaciones legales de exactitud; conviene que el restaurante lo revise
+antes de usarlos como argumento comercial.
 
 ## Decisiones de diseño de la carta
 
@@ -102,8 +162,9 @@ generación de QR, el visor 3D y el modo AR.
   gratuita). Los tipos `Order` y `OrderItem` ya tienen la forma adecuada.
 - No hay cuentas ni panel de administración: es un restaurante único, no
   multi-inquilino. Ese es el siguiente bloque si un restaurante dice que sí.
-- Las fotos son de stock (Unsplash) y los modelos 3D son genéricos. Las dos
-  cosas se reemplazan por material del restaurante.
+- Las fotos son de stock (Unsplash) y los modelos 3D están hechos a mano
+  para esta demo. Las dos cosas se reemplazan por material del restaurante.
+- Los macros son estimados desde la receta, no analizados en laboratorio.
 - El AR por cámara funciona en **Android** (Scene Viewer) solo con el `.glb`.
   En **iPhone** (Quick Look) hace falta además un `.usdz` de cada plato; sin
   él, en iPhone queda el visor 3D interactivo pero no el modo cámara. Se
@@ -126,10 +187,23 @@ lib/
   types.ts                    → tipos compartidos
   order-store.ts              → pedidos en memoria
 public/models/                → los nueve modelos .glb a escala real
+herramientas/
+  build2.py                   → genera los 9 modelos
+  glb2.py                     → exportador glTF (geometría, UV, texturas)
+  tex.py                      → texturas procedurales de cada alimento
+  macros.py                   → cálculo de macros desde las recetas
+  validate2.py                → valida los .glb generados
+  render2.py                  → los rasteriza a PNG para revisarlos
+  test_assistant.mjs          → 66 preguntas contra el asistente
+  check_macros.py             → los macros de data.ts vs. el cálculo
 ```
+
+Las herramientas son de desarrollo: no se despliegan ni las necesita
+Vercel, pero viajan con el repo para que los modelos y los macros se puedan
+rehacer sin volver a empezar de cero.
 
 ## Adaptarlo a otro restaurante
 
 Todo el contenido vive en `lib/data.ts`: nombre, secciones, platos, precios,
-fotos, ingredientes, alérgenos y modelos 3D. Para preparar una demo para
-otro restaurante de Barinas basta con editar ese archivo.
+fotos, ingredientes, alérgenos, macros y modelos 3D. Para preparar una demo
+para otro restaurante de Barinas basta con editar ese archivo.

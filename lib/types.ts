@@ -20,6 +20,30 @@ export type Alergeno =
 
 export type Dieta = "vegetariano" | "vegano" | "sin gluten" | "sin lacteos";
 
+/**
+ * Macros del plato completo tal como se sirve, no por cada 100 g.
+ *
+ * Son ESTIMACIONES calculadas sumando los ingredientes de la receta con
+ * valores de referencia por 100 g (USDA FoodData Central para los
+ * alimentos básicos). El cálculo está en `herramientas/macros.py`, que es
+ * donde se reproduce y se corrige: se edita el gramaje de la receta y se
+ * vuelve a ejecutar.
+ *
+ * Importa no confundirlas con información nutricional declarada: el
+ * aceite que absorbe una fritura o la mano del cocinero con la salsa
+ * mueven el resultado con facilidad un 15%, y en varios países publicar
+ * cifras como oficiales obliga a un análisis de laboratorio. Por eso la
+ * interfaz siempre las presenta como aproximadas.
+ */
+export type Macros = {
+  kcal: number;
+  /** Gramos. */
+  proteina: number;
+  carbohidratos: number;
+  grasa: number;
+  fibra: number;
+};
+
 export type Dish = {
   id: string;
   name: string;
@@ -56,6 +80,12 @@ export type Dish = {
   nota?: string;
   /** Otras formas de nombrar el plato, para entender preguntas. */
   alias?: string[];
+  /** Macros estimados del plato servido. Ver el tipo `Macros`. */
+  macros?: Macros;
+  /** Peso aproximado del plato servido, en gramos. Base del cálculo. */
+  gramos?: number;
+  /** Cambios que la cocina admite: "sin queso", "sin picante", media porción. */
+  ajustes?: string[];
 };
 
 export type Category = {

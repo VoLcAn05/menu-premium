@@ -81,6 +81,9 @@ export const restaurant: Restaurant = {
       combina: ["coctel-casa", "lomo-parrilla"],
       nota: "El aguacate se abre al momento de pedirlo, por eso no se pide sin camarones: se oxida.",
       alias: ["aguacate", "palta", "aguacate relleno", "camarones al ajillo"],
+      gramos: 319,
+      macros: { kcal: 500, proteina: 24, carbohidratos: 21, grasa: 39, fibra: 14 },
+      ajustes: ["sin picante", "sin cilantro"],
     },
     {
       id: "ceviche-camarones",
@@ -112,6 +115,9 @@ export const restaurant: Restaurant = {
       combina: ["coctel-casa", "lomo-parrilla", "costillas-bbq"],
       nota: "Lo más ligero del menú y lo que más sale. Buena entrada antes de algo de la brasa.",
       alias: ["ceviche", "cebiche", "seviche"],
+      gramos: 356,
+      macros: { kcal: 280, proteina: 61, carbohidratos: 9, grasa: 1, fibra: 1 },
+      ajustes: ["sin picante", "sin cebolla", "sin cilantro", "media porción"],
     },
     {
       id: "ensalada-casa",
@@ -141,6 +147,13 @@ export const restaurant: Restaurant = {
       combina: ["lomo-parrilla", "costillas-bbq", "hamburguesa-premium"],
       nota: "Se puede pedir sin queso para volverla vegana; la vinagreta no lleva lácteos.",
       alias: ["ensalada", "ensalada de la casa", "vegetales"],
+      gramos: 290,
+      macros: { kcal: 340, proteina: 12, carbohidratos: 17, grasa: 26, fibra: 4 },
+      ajustes: [
+        "sin queso (queda vegana)",
+        "vinagreta aparte",
+        "porción individual",
+      ],
     },
 
     {
@@ -171,6 +184,13 @@ export const restaurant: Restaurant = {
       combina: ["ensalada-casa", "coctel-casa", "torta-chocolate"],
       nota: "El término se pide al ordenar. Es el corte más grueso del menú, tarda unos 22 minutos.",
       alias: ["lomo", "carne", "steak", "bife", "parrilla", "res"],
+      gramos: 463,
+      macros: { kcal: 1060, proteina: 95, carbohidratos: 50, grasa: 52, fibra: 3 },
+      ajustes: [
+        "término al gusto",
+        "sin chimichurri",
+        "cambiar la yuca por ensalada",
+      ],
     },
     {
       id: "hamburguesa-premium",
@@ -201,6 +221,14 @@ export const restaurant: Restaurant = {
       combina: ["coctel-casa", "ensalada-casa"],
       nota: "Viene con papas incluidas, no hace falta pedir acompañante aparte.",
       alias: ["hamburguesa", "burger", "burguer", "hamburgesa"],
+      gramos: 555,
+      macros: { kcal: 1620, proteina: 94, carbohidratos: 91, grasa: 95, fibra: 7 },
+      ajustes: [
+        "sin tocineta",
+        "sin queso",
+        "sin cebolla",
+        "cambiar las papas por ensalada",
+      ],
     },
     {
       id: "pasta-pesto",
@@ -229,6 +257,9 @@ export const restaurant: Restaurant = {
       combina: ["ensalada-casa", "coctel-casa", "torta-chocolate"],
       nota: "El pesto lleva piñones y parmesano; si hay alergia a frutos secos, este plato no aplica.",
       alias: ["pasta", "pesto", "espagueti", "tallarines", "fideos"],
+      gramos: 348,
+      macros: { kcal: 710, proteina: 43, carbohidratos: 61, grasa: 33, fibra: 4 },
+      ajustes: ["sin camarones", "sin parmesano"],
     },
     {
       id: "costillas-bbq",
@@ -256,6 +287,9 @@ export const restaurant: Restaurant = {
       combina: ["ensalada-casa", "coctel-casa"],
       nota: "Se ahúman seis horas desde la madrugada; cuando se acaban, se acaban hasta el día siguiente.",
       alias: ["costillas", "costilla", "ribs", "bbq", "cerdo", "puerco"],
+      gramos: 440,
+      macros: { kcal: 1210, proteina: 74, carbohidratos: 35, grasa: 86, fibra: 2 },
+      ajustes: ["salsa aparte", "media porción"],
     },
 
     {
@@ -287,6 +321,9 @@ export const restaurant: Restaurant = {
       combina: ["coctel-casa"],
       nota: "Sale fría de nevera; si la prefieres tibia, se calienta un minuto, solo hay que avisar.",
       alias: ["torta", "postre", "chocolate", "pastel", "cake"],
+      gramos: 120,
+      macros: { kcal: 490, proteina: 6, carbohidratos: 52, grasa: 29, fibra: 3 },
+      ajustes: ["tibia", "sin sal de mar", "con dos cucharas"],
     },
 
     {
@@ -315,6 +352,9 @@ export const restaurant: Restaurant = {
       combina: ["ceviche-camarones", "lomo-parrilla", "costillas-bbq"],
       nota: "La versión sin alcohol cuesta lo mismo y lleva el mismo romero quemado.",
       alias: ["coctel", "cocktail", "trago", "bebida", "ron", "copa"],
+      gramos: 97,
+      macros: { kcal: 210, proteina: 0, carbohidratos: 24, grasa: 0, fibra: 0 },
+      ajustes: ["sin alcohol", "sin hielo", "menos dulce"],
     },
   ],
 };

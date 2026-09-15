@@ -77,6 +77,12 @@ export function DishCard({
 
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.72rem] text-cream/35">
         {dish.portion && <span>{dish.portion}</span>}
+        {/*
+          Las kcal van aquí y no en el nombre del plato: informan a quien
+          las busca sin convertir la carta en una tabla nutricional. El
+          desglose completo está dentro de la ficha.
+        */}
+        {dish.macros && <span>~{dish.macros.kcal} kcal</span>}
         {!destacado && dish.model3d && !agotado && (
           <span className="text-gold/70">Ver en 3D</span>
         )}

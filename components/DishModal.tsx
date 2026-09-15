@@ -20,6 +20,86 @@ function Dato({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Bloque de macros del plato.
+ *
+ * Decisiones que no son estéticas:
+ *
+ * - Las kcal van grandes y los gramos pequeños, porque es la cifra que la
+ *   gente busca primero.
+ * - La barra reparte la ENERGÍA, no los gramos: 1 g de grasa aporta 9 kcal
+ *   y 1 g de proteína 4, así que una barra por peso daría una idea falsa
+ *   de qué domina el plato.
+ * - Dice "aproximados" y explica de dónde salen. Son estimaciones desde la
+ *   receta, no un análisis de laboratorio, y presentarlas como dato exacto
+ *   sería mentirle a alguien que puede estar decidiendo por salud.
+ */
+function Macros({ dish }: { dish: Dish }) {
+  const m = dish.macros;
+  if (!m) return null;
+
+  const energia = [
+    { clave: "Proteína", g: m.proteina, kcal: m.proteina * 4, color: "bg-gold" },
+    {
+      clave: "Carbohidratos",
+      g: m.carbohidratos,
+      kcal: m.carbohidratos * 4,
+      color: "bg-gold/55",
+    },
+    { clave: "Grasa", g: m.grasa, kcal: m.grasa * 9, color: "bg-gold/25" },
+  ];
+  const total = energia.reduce((s, x) => s + x.kcal, 0) || 1;
+
+  return (
+    <section className="filete mt-6 pt-5">
+      <h3 className="text-[0.68rem] uppercase tracking-seccion text-cream/40">
+        Información nutricional aproximada
+      </h3>
+
+      <div className="mt-3 flex items-baseline gap-2">
+        <span className="font-display text-[2rem] leading-none text-gold-light">
+          {m.kcal}
+        </span>
+        <span className="text-[0.8rem] text-cream/50">
+          kcal
+          {dish.gramos ? ` · ${dish.gramos} g servidos` : ""}
+          {dish.personas >= 2 ? " · plato completo, alcanza para dos" : ""}
+        </span>
+      </div>
+
+      {/* gap-px separa los tramos: tres tonos del mismo dorado se funden
+          en una sola barra si se tocan. */}
+      <div className="mt-3 flex h-1.5 gap-px overflow-hidden rounded-full bg-cream/10">
+        {energia.map((x) => (
+          <div
+            key={x.clave}
+            className={x.color}
+            style={{ width: `${(x.kcal / total) * 100}%` }}
+            title={`${x.clave}: ${Math.round((x.kcal / total) * 100)}% de las calorías`}
+          />
+        ))}
+      </div>
+
+      <dl className="mt-3 grid grid-cols-4 gap-2 text-center">
+        {[...energia, { clave: "Fibra", g: m.fibra }].map((x) => (
+          <div key={x.clave}>
+            <dt className="text-[0.62rem] uppercase tracking-wide text-cream/35">
+              {x.clave}
+            </dt>
+            <dd className="mt-0.5 text-[0.95rem] text-cream/80">{x.g} g</dd>
+          </div>
+        ))}
+      </dl>
+
+      <p className="mt-3 text-[0.72rem] leading-relaxed text-cream/35">
+        Valores estimados a partir de la receta, no de un análisis de
+        laboratorio. Pueden variar según el tamaño de la pieza y la mano del
+        cocinero.
+      </p>
+    </section>
+  );
+}
+
 export function DishModal({
   dish,
   complementos,
@@ -150,6 +230,19 @@ export function DishModal({
               <p className="mt-2 text-[0.875rem] leading-relaxed text-cream/70">
                 Contiene {dish.alergenos.join(", ")}. Si tienes alguna alergia,
                 avísale al mesero al pedir.
+              </p>
+            </section>
+          )}
+
+          <Macros dish={dish} />
+
+          {dish.ajustes && dish.ajustes.length > 0 && (
+            <section className="mt-5">
+              <h3 className="text-[0.68rem] uppercase tracking-seccion text-cream/40">
+                Se puede pedir
+              </h3>
+              <p className="mt-2 text-[0.875rem] leading-relaxed text-cream/70">
+                {dish.ajustes.join(" · ")}
               </p>
             </section>
           )}
