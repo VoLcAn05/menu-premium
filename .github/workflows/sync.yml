@@ -1,0 +1,39 @@
+name: Actualizar desde Claude
+
+on:
+  workflow_dispatch:
+    inputs:
+      zip_url:
+        description: 'URL del paquete a sincronizar (Claude te la da cada vez)'
+        required: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descargar y extraer el paquete
+        run: |
+          curl -L -o /tmp/sync.zip "${{ github.event.inputs.zip_url }}"
+          rm -rf /tmp/sync_extracted
+          mkdir -p /tmp/sync_extracted
+          unzip -o /tmp/sync.zip -d /tmp/sync_extracted
+
+      - name: Reemplazar archivos (sin tocar .git ni .github)
+        run: |
+          rsync -a --delete \
+            --exclude '.git' \
+            --exclude '.github' \
+            /tmp/sync_extracted/ ./
+
+      - name: Commit y push
+        run: |
+          git config user.name "menu-premium-sync-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && echo "Sin cambios" && exit 0
+          git commit -m "Sync automatico desde Claude"
+          git push
