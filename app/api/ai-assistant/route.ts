@@ -1,76 +1,128 @@
+import { responder, menuComoTexto } from "@/lib/assistant";
 import { restaurant } from "@/lib/data";
 
-const SYSTEM_PROMPT = `Eres un asistente de recomendación de comida para "${restaurant.name}", un restaurante con cocina de brasa y sabores de los Llanos en Barinas.
+export const runtime = "nodejs";
 
-Tu rol es:
-1. Responder preguntas sobre los platos del menú con información detallada
-2. Recomendar platos basado en preferencias del cliente (picante, vegetariano, mariscos, carnes, etc.)
-3. Sugerir complementos para agregarle a un plato ya pedido
-4. Describir ingredientes, tamaño de porción y sabores
+/**
+ * Asistente del menú.
+ *
+ * Por defecto responde con el motor local de `lib/assistant.ts`: no cuesta
+ * nada, no depende de terceros y solo puede afirmar lo que está en el menú.
+ *
+ * Si defines ANTHROPIC_API_KEY en las variables de entorno (en Vercel:
+ * Settings -> Environment Variables), redacta con Claude usando ese mismo
+ * menú como única fuente. Si la llamada falla por lo que sea, cae de vuelta
+ * al motor local en lugar de dejar al cliente sin respuesta.
+ */
 
-Menú disponible:
-${restaurant.dishes
-  .filter((d) => d.available)
-  .map(
-    (d) =>
-      `- ${d.name} ($${d.price}): ${d.description}. Porción: ${d.portion}. Tags: ${d.tags?.join(", ") || "ninguno"}`
-  )
-  .join("\n")}
+const MODELO = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
 
-Instrucciones:
-- Sé amable y profesional
-- Cuando el cliente pida recomendaciones para un plato, sugiere 1-2 complementos del menú que combinen bien
-- Si el cliente pregunta qué contiene un plato, describe los ingredientes principales
-- Fomenta el upselling sugiriendo bebidas o postres si es apropiado
-- Responde siempre en español
-- Mantén respuestas concisas (máximo 2-3 oraciones por recomendación)`;
+function instrucciones(): string {
+  return `Eres el asistente de sala de ${restaurant.name}, ${restaurant.tagline}.
+Atiendes a un comensal que está sentado en su mesa mirando el menú en su teléfono.
+
+CARTA DE HOY (única fuente de verdad):
+${menuComoTexto()}
+
+Reglas:
+- Responde solo con información de la carta. Si te preguntan algo que no está
+  ahí, dilo con naturalidad y reconduce al menú. Nunca inventes un plato, un
+  precio, un ingrediente ni un dato nutricional.
+- Los precios se escriben sin símbolo de moneda, tal como aparecen arriba.
+- Si un plato está AGOTADO HOY, dilo y ofrece la alternativa más parecida.
+- Con alergias sé literal y prudente: si el plato contiene el alérgeno, dilo
+  claro y ofrece alternativas que no lo lleven. Recomienda avisar al mesero.
+- Cuando alguien ya eligió un plato, sugiere un acompañamiento o una bebida
+  de la carta que combine, explicando en pocas palabras por qué.
+- Español de Venezuela, tono cálido y directo, sin florituras.
+- Dos o tres frases como máximo. Es un chat en un teléfono, no una carta.`;
+}
+
+async function conClaude(
+  mensajes: { role: string; content: string }[]
+): Promise<string | null> {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) return null;
+
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), 12_000);
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      signal: ctrl.signal,
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: MODELO,
+        max_tokens: 400,
+        system: instrucciones(),
+        messages: mensajes
+          .filter((m) => m.role === "user" || m.role === "assistant")
+          .slice(-8)
+          .map((m) => ({ role: m.role, content: m.content })),
+      }),
+    });
+    if (!res.ok) {
+      console.error("Anthropic respondió", res.status, await res.text());
+      return null;
+    }
+    const data = await res.json();
+    const texto = data?.content?.[0]?.text;
+    return typeof texto === "string" && texto.trim() ? texto.trim() : null;
+  } catch (e) {
+    console.error("Fallo al llamar a Anthropic:", e);
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const body = await req.json();
+    const mensajes = Array.isArray(body?.messages) ? body.messages : [];
+    const ultima = mensajes[mensajes.length - 1]?.content;
 
-    // En una app real, esto llamaría a Claude API
-    // Por ahora, retornamos una respuesta de demo
-    const userMessage = messages[messages.length - 1]?.content || "";
-
-    // Recomendaciones basadas en palabras clave
-    let response = "";
-
-    if (
-      userMessage.toLowerCase().includes("lomo") ||
-      userMessage.toLowerCase().includes("steak")
-    ) {
-      response =
-        "Excelente elección. El lomo a la parrilla (320g, $14) es perfecto con nuestro chimichurri de la casa. Le recomiendo acompañarlo con nuestro **Coctel de la casa** ($6) para una experiencia completa. ¿Le gustaría agregar un postre después? La torta de chocolate es espectacular.";
-    } else if (
-      userMessage.toLowerCase().includes("hamb") ||
-      userMessage.toLowerCase().includes("burger")
-    ) {
-      response =
-        "La hamburguesa premium Fogón ($9.50) es nuestra más pedida. Viene con queso ahumado, tocineta crocante y salsa especial. Para complementarla, sugiero el **Ceviche de camarones** ($7) como entrada. ¿Algo de beber?";
-    } else if (userMessage.toLowerCase().includes("vegetar")) {
-      response =
-        "Para un menú vegetariano, le recomiendo la **Ensalada fresca de la casa** ($5.50) como entrada. Otros platos sin carne: la torta de chocolate ($4.50) de postre. ¿Le interesa conocer más detalles?";
-    } else if (userMessage.toLowerCase().includes("recomend")) {
-      response =
-        "¿Qué tipo de comida le gusta? ¿Prefiere mariscos, carnes a la brasa, algo vegetariano, o algo ligero? Con esa info le doy la mejor recomendación.";
-    } else if (userMessage.toLowerCase().includes("ingredient")) {
-      response =
-        "¿Cuál plato le interesa? Puedo describir en detalle qué lleva cada uno. Algunos destacados: el ceviche de camarones marinados en limón, el aguacate relleno con camarones al ajillo, y las costillas ahumadas 6 horas.";
-    } else {
-      response =
-        "Bienvenido a Fogón Barinés. ¿En qué puedo ayudarte? Puedo recomendar platos, describir ingredientes, o sugerir complementos para tu pedido.";
+    if (typeof ultima !== "string" || !ultima.trim()) {
+      return Response.json(
+        { error: "Falta el mensaje del usuario" },
+        { status: 400 }
+      );
+    }
+    if (ultima.length > 500) {
+      return Response.json({
+        texto: "Esa pregunta es muy larga. ¿Me la resumes en una frase?",
+        platos: [],
+        sugerencias: [],
+        motor: "local",
+      });
     }
 
+    // El motor local siempre resuelve: da las tarjetas de plato y sirve de
+    // red de seguridad si la llamada al modelo no está configurada o falla.
+    const local = responder(ultima);
+    const redactado = await conClaude(mensajes);
+
     return Response.json({
-      content: response,
-      recommendations: [],
+      texto: redactado ?? local.texto,
+      platos: local.platos,
+      sugerencias: local.sugerencias,
+      motor: redactado ? "claude" : "local",
     });
-  } catch (error) {
-    console.error("AI Assistant error:", error);
+  } catch (e) {
+    console.error("Error en el asistente:", e);
     return Response.json(
-      { error: "Error al procesar tu pregunta" },
-      { status: 500 }
+      {
+        texto:
+          "Se me complicó procesar eso. ¿Lo intentas de nuevo con otras palabras?",
+        platos: [],
+        sugerencias: ["¿Qué me recomiendas?"],
+        motor: "error",
+      },
+      { status: 200 }
     );
   }
 }

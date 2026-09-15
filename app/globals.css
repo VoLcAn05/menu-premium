@@ -7,8 +7,13 @@ html {
 }
 
 body {
-  background-color: #141110;
-  color: #f6f1e7;
+  background-color: #12100e;
+  color: #f4efe4;
+}
+
+/* La serif de la carta pide un poco de aire entre líneas apretadas. */
+.font-display {
+  font-feature-settings: "liga" 1, "kern" 1;
 }
 
 ::-webkit-scrollbar {
@@ -16,20 +21,25 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(201, 161, 90, 0.35);
+  background: rgba(201, 161, 90, 0.3);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* Hide scrollbar for the horizontal category nav but keep it scrollable */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Filete fino de separación entre platos: 1px se ve como borde de caja,
+   medio píxel al 10% se lee como aire. */
+.filete {
+  border-top: 1px solid rgba(244, 239, 228, 0.09);
 }
 
 @keyframes fade-in-up {
@@ -43,12 +53,24 @@ body {
   }
 }
 .animate-fade-in-up {
-  animation: fade-in-up 0.35s ease-out both;
+  animation: fade-in-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.22s ease-out both;
 }
 
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 rgba(201, 161, 90, 0.55);
+    box-shadow: 0 0 0 0 rgba(201, 161, 90, 0.5);
   }
   100% {
     box-shadow: 0 0 0 14px rgba(201, 161, 90, 0);
@@ -56,4 +78,21 @@ body {
 }
 .animate-pulse-ring {
   animation: pulse-ring 1.6s ease-out infinite;
+}
+
+/* Puntos de "escribiendo" del asistente */
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+.typing-dot {
+  animation: typing 1.2s infinite;
 }

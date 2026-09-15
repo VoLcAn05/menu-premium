@@ -1,19 +1,31 @@
 import { Restaurant } from "./types";
 
 /**
- * Restaurante de demostración.
+ * Menú del restaurante demo.
  *
- * Las fotos son de stock (Unsplash, uso libre) solo para esta demo de ventas —
- * en un restaurante real se reemplazan por fotos propias de cada plato.
+ * Este archivo es la única fuente de verdad: alimenta el menú del cliente,
+ * el visor 3D/AR y el asistente. Si el asistente ha de saber algo de un
+ * plato, va aquí — no en el código del chatbot.
  *
- * Los modelos 3D usan assets de muestra públicos (Khronos glTF-Sample-Assets)
- * para demostrar la función de "ver en 3D / AR" en todos los platos.
- * Para una demo realista, cuando tengas platos reales escaneados con fotogrametría
- * (KIRI Engine u otra app), solo reemplazas la URL de `model3d` en cada plato.
+ * Los modelos 3D se sirven desde /public/models. Están modelados a escala
+ * real en metros (plato de entrada 21 cm, fuerte 27 cm, postre 18 cm,
+ * copa 9 cm), que es lo que hace que en AR aparezcan del tamaño que
+ * tendrán sobre la mesa. Para un restaurante real se reemplazan por
+ * escaneos de los platos verdaderos (Polycam o KIRI Engine exportan .glb)
+ * cambiando solo la ruta de `model3d`.
+ *
+ * El orden dentro de cada categoría no es casual: los platos de mejor
+ * margen van en las dos primeras posiciones y en la última, que es donde
+ * más se fija la vista.
  */
 
 const IMG = (id: string, w = 1200) =>
   `https://images.unsplash.com/${id}?w=${w}&q=75&auto=format&fit=crop`;
+
+const M = (id: string, ancho: number, alto: number) => ({
+  glb: `/models/${id}.glb`,
+  medidas: { ancho, alto },
+});
 
 export const restaurant: Restaurant = {
   slug: "fogon-barines",
@@ -22,142 +34,287 @@ export const restaurant: Restaurant = {
   logoInitial: "F",
   tableCount: 12,
   categories: [
-    { id: "entradas", name: "Entradas" },
-    { id: "fuertes", name: "Platos fuertes" },
-    { id: "postres", name: "Postres" },
-    { id: "bebidas", name: "Bebidas" },
+    {
+      id: "entradas",
+      name: "Para empezar",
+      nav: "Entradas",
+      intro: "Frescos y de cuchara",
+    },
+    {
+      id: "fuertes",
+      name: "De la brasa",
+      nav: "Brasa",
+      intro: "Fuego lento y leña",
+    },
+    { id: "postres", name: "Para cerrar", nav: "Postres" },
+    { id: "bebidas", name: "De la barra", nav: "Barra" },
   ],
   dishes: [
     {
-      id: "ensalada-casa",
-      name: "Ensalada fresca de la casa",
+      id: "aguacate-camarones",
+      name: "Aguacate relleno con camarones al ajillo",
       description:
-        "Mezcla de vegetales de estación, queso de mano llanero, tomate confitado y vinagreta de papelón.",
-      price: 5.5,
-      image: IMG("photo-1512621776951-a57141f2eefd"),
+        "Aguacate criollo abierto al momento, relleno de camarones salteados en ajo y mantequilla de la casa.",
+      price: 8.5,
+      image: IMG("photo-1600335895229-6e75511892c8"),
       category: "entradas",
-      tags: ["vegetariano"],
-      portion: "1 porción · ideal para compartir",
-      model3d: {
-        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Salad/glTF-Binary/Salad.glb",
-      },
+      tags: ["plato estrella"],
+      portion: "Un aguacate entero · una persona",
+      model3d: M("aguacate-camarones", 21, 4.7),
       available: true,
+      ingredientes: [
+        "aguacate criollo",
+        "camarones",
+        "ajo",
+        "mantequilla",
+        "ají dulce",
+        "cilantro",
+        "limón",
+      ],
+      alergenos: ["mariscos", "lacteos"],
+      dietas: ["sin gluten"],
+      picante: 1,
+      picanteOpcional: true,
+      minutos: 12,
+      personas: 1,
+      perfil: ["cremoso", "mantecoso", "aromático", "tibio sobre frío"],
+      combina: ["coctel-casa", "lomo-parrilla"],
+      nota: "El aguacate se abre al momento de pedirlo, por eso no se pide sin camarones: se oxida.",
+      alias: ["aguacate", "palta", "aguacate relleno", "camarones al ajillo"],
     },
     {
       id: "ceviche-camarones",
       name: "Ceviche de camarones estilo Barinas",
       description:
-        "Camarones frescos marinados en limón, ají dulce, cebolla morada y cilantro. Servido bien frío.",
+        "Camarones curados en limón con ají dulce, cebolla morada y cilantro. Se sirve bien frío, en su propio jugo.",
       price: 7.0,
       image: IMG("photo-1626663011519-b42e5ee10056"),
       category: "entradas",
       tags: ["más pedido"],
-      portion: "250 g · 1 persona",
-      model3d: {
-        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Shrimp/glTF-Binary/Shrimp.glb",
-      },
+      portion: "250 g · una persona",
+      model3d: M("ceviche-camarones", 15, 5.5),
       available: true,
+      ingredientes: [
+        "camarones",
+        "limón",
+        "ají dulce",
+        "cebolla morada",
+        "cilantro",
+        "sal marina",
+      ],
+      alergenos: ["mariscos"],
+      dietas: ["sin gluten", "sin lacteos"],
+      picante: 1,
+      picanteOpcional: true,
+      minutos: 8,
+      personas: 1,
+      perfil: ["cítrico", "fresco", "ligero", "frío"],
+      combina: ["coctel-casa", "lomo-parrilla", "costillas-bbq"],
+      nota: "Lo más ligero del menú y lo que más sale. Buena entrada antes de algo de la brasa.",
+      alias: ["ceviche", "cebiche", "seviche"],
     },
     {
-      id: "aguacate-camarones",
-      name: "Aguacate relleno con camarones al ajillo",
+      id: "ensalada-casa",
+      name: "Ensalada fresca de la casa",
       description:
-        "Aguacate criollo relleno de camarones salteados en ajo y mantequilla, toque de ají picante opcional.",
-      price: 8.5,
-      image: IMG("photo-1600335895229-6e75511892c8"),
+        "Vegetales de estación, queso de mano llanero, tomate confitado y vinagreta de papelón.",
+      price: 5.5,
+      image: IMG("photo-1512621776951-a57141f2eefd"),
       category: "entradas",
-      tags: ["plato estrella", "picante opcional"],
-      portion: "1 aguacate mediano · 1 persona",
-      model3d: {
-        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Avocado/glTF-Binary/Avocado.glb",
-      },
+      tags: ["vegetariano"],
+      portion: "Alcanza para compartir entre dos",
+      model3d: M("ensalada-casa", 21, 4.3),
       available: true,
+      ingredientes: [
+        "lechugas de estación",
+        "queso de mano",
+        "tomate confitado",
+        "vinagreta de papelón",
+        "cebollín",
+      ],
+      alergenos: ["lacteos"],
+      dietas: ["vegetariano", "sin gluten"],
+      picante: 0,
+      minutos: 6,
+      personas: 2,
+      perfil: ["fresco", "dulce y ácido", "crujiente"],
+      combina: ["lomo-parrilla", "costillas-bbq", "hamburguesa-premium"],
+      nota: "Se puede pedir sin queso para volverla vegana; la vinagreta no lleva lácteos.",
+      alias: ["ensalada", "ensalada de la casa", "vegetales"],
     },
+
     {
       id: "lomo-parrilla",
       name: "Lomo a la parrilla con chimichurri",
       description:
-        "Corte de lomo de res a la brasa, término a tu gusto, servido con chimichurri de la casa y yuca frita.",
+        "Corte grueso de lomo sellado sobre leña, al término que pidas, con chimichurri de la casa y yuca frita.",
       price: 14.0,
       image: IMG("photo-1600891964092-4316c288032e"),
       category: "fuertes",
       tags: ["más pedido"],
-      portion: "320 g · 1 persona",
-      model3d: {
-        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Steak/glTF-Binary/Steak.glb",
-      },
+      portion: "320 g · una persona",
+      model3d: M("lomo-parrilla", 27, 5.6),
       available: true,
+      ingredientes: [
+        "lomo de res",
+        "chimichurri",
+        "yuca frita",
+        "sal en grano",
+        "aceite de oliva",
+      ],
+      alergenos: [],
+      dietas: ["sin gluten", "sin lacteos"],
+      picante: 0,
+      minutos: 22,
+      personas: 1,
+      perfil: ["ahumado", "jugoso", "herbal", "contundente"],
+      combina: ["ensalada-casa", "coctel-casa", "torta-chocolate"],
+      nota: "El término se pide al ordenar. Es el corte más grueso del menú, tarda unos 22 minutos.",
+      alias: ["lomo", "carne", "steak", "bife", "parrilla", "res"],
     },
     {
-      id: "costillas-bbq",
-      name: "Costillas ahumadas BBQ",
+      id: "hamburguesa-premium",
+      name: "Hamburguesa Fogón",
       description:
-        "Costillas de cerdo ahumadas 6 horas, glaseadas en salsa BBQ casera, acompañadas de ensalada de papa.",
-      price: 13.5,
-      image: IMG("photo-1588168333986-5078d3ae3976"),
+        "Carne molida en casa, queso ahumado, tocineta crocante, cebolla caramelizada y salsa de la casa.",
+      price: 9.5,
+      image: IMG("photo-1550547660-d9450f859349"),
       category: "fuertes",
-      portion: "400 g · 1 persona",
-      model3d: {
-        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/RibsCooked/glTF-Binary/RibsCooked.glb",
-      },
-      available: false,
+      tags: ["más pedido"],
+      portion: "250 g de carne · papas incluidas",
+      model3d: M("hamburguesa-premium", 27, 11.2),
+      available: true,
+      ingredientes: [
+        "carne de res molida",
+        "pan brioche",
+        "queso ahumado",
+        "tocineta",
+        "cebolla caramelizada",
+        "salsa de la casa",
+        "papas fritas",
+      ],
+      alergenos: ["gluten", "lacteos", "huevo"],
+      picante: 0,
+      minutos: 15,
+      personas: 1,
+      perfil: ["ahumado", "salado", "jugoso", "contundente"],
+      combina: ["coctel-casa", "ensalada-casa"],
+      nota: "Viene con papas incluidas, no hace falta pedir acompañante aparte.",
+      alias: ["hamburguesa", "burger", "burguer", "hamburgesa"],
     },
     {
       id: "pasta-pesto",
       name: "Pasta al pesto con camarones",
       description:
-        "Pasta fresca en salsa pesto de albahaca, camarones salteados y lascas de parmesano.",
+        "Pasta fresca del día en pesto de albahaca, con camarones salteados y lascas de parmesano.",
       price: 11.0,
       image: IMG("photo-1627042633145-b780d842ba45"),
       category: "fuertes",
-      portion: "1 porción generosa",
-      model3d: {
-        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Pasta/glTF-Binary/Pasta.glb",
-      },
+      portion: "Porción generosa · una persona",
+      model3d: M("pasta-pesto", 27, 6.4),
       available: true,
+      ingredientes: [
+        "pasta fresca",
+        "pesto de albahaca",
+        "camarones",
+        "parmesano",
+        "piñones",
+        "ajo",
+      ],
+      alergenos: ["gluten", "lacteos", "mariscos", "frutos secos", "huevo"],
+      picante: 0,
+      minutos: 16,
+      personas: 1,
+      perfil: ["cremoso", "herbal", "salado"],
+      combina: ["ensalada-casa", "coctel-casa", "torta-chocolate"],
+      nota: "El pesto lleva piñones y parmesano; si hay alergia a frutos secos, este plato no aplica.",
+      alias: ["pasta", "pesto", "espagueti", "tallarines", "fideos"],
     },
     {
-      id: "hamburguesa-premium",
-      name: "Hamburguesa premium Fogón",
+      id: "costillas-bbq",
+      name: "Costillas ahumadas BBQ",
       description:
-        "Carne 100% de res, queso ahumado, tocineta crocante, cebolla caramelizada y salsa especial de la casa.",
-      price: 9.5,
-      image: IMG("photo-1550547660-d9450f859349"),
+        "Costillas de cerdo ahumadas seis horas, glaseadas en BBQ de papelón, con ensalada de papa.",
+      price: 13.5,
+      image: IMG("photo-1588168333986-5078d3ae3976"),
       category: "fuertes",
-      tags: ["más pedido"],
-      portion: "250 g de carne · con papas incluidas",
-      model3d: {
-        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Hamburger/glTF-Binary/Hamburger.glb",
-      },
-      available: true,
+      portion: "400 g · una persona con buen apetito",
+      model3d: M("costillas-bbq", 27, 4.2),
+      available: false,
+      ingredientes: [
+        "costillas de cerdo",
+        "salsa BBQ de papelón",
+        "especias ahumadas",
+        "ensalada de papa",
+        "mayonesa",
+      ],
+      alergenos: ["huevo", "soya"],
+      picante: 1,
+      minutos: 18,
+      personas: 1,
+      perfil: ["ahumado", "dulce", "pegajoso", "contundente"],
+      combina: ["ensalada-casa", "coctel-casa"],
+      nota: "Se ahúman seis horas desde la madrugada; cuando se acaban, se acaban hasta el día siguiente.",
+      alias: ["costillas", "costilla", "ribs", "bbq", "cerdo", "puerco"],
     },
+
     {
       id: "torta-chocolate",
       name: "Torta de chocolate con ganache",
       description:
-        "Bizcocho húmedo de chocolate, relleno y cubierto de ganache, con toque de sal de mar.",
+        "Bizcocho húmedo de chocolate con ganache y una pizca de sal de mar que levanta el dulce.",
       price: 4.5,
       image: IMG("photo-1602351447937-745cb720612f"),
       category: "postres",
       tags: ["vegetariano"],
-      portion: "1 porción",
-      model3d: {
-        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Cake/glTF-Binary/Cake.glb",
-      },
+      portion: "Una porción · alcanza para dos si es después de un fuerte",
+      model3d: M("torta-chocolate", 18, 6.2),
       available: true,
+      ingredientes: [
+        "chocolate oscuro",
+        "harina de trigo",
+        "huevo",
+        "mantequilla",
+        "crema de leche",
+        "sal de mar",
+      ],
+      alergenos: ["gluten", "lacteos", "huevo"],
+      dietas: ["vegetariano"],
+      picante: 0,
+      minutos: 4,
+      personas: 2,
+      perfil: ["dulce", "intenso", "húmedo"],
+      combina: ["coctel-casa"],
+      nota: "Sale fría de nevera; si la prefieres tibia, se calienta un minuto, solo hay que avisar.",
+      alias: ["torta", "postre", "chocolate", "pastel", "cake"],
     },
+
     {
       id: "coctel-casa",
       name: "Coctel de la casa",
       description:
-        "Ron añejo llanero, papelón, limón y un toque de romero fresco. Versión sin alcohol disponible.",
+        "Ron añejo llanero, papelón, limón y romero fresco quemado al momento. Hay versión sin alcohol.",
       price: 6.0,
       image: IMG("photo-1609951651556-5334e2706168"),
       category: "bebidas",
-      model3d: {
-        glb: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Drink/glTF-Binary/Drink.glb",
-      },
+      model3d: M("coctel-casa", 9, 11.9),
       available: true,
+      ingredientes: [
+        "ron añejo",
+        "papelón",
+        "limón",
+        "romero fresco",
+        "hielo",
+      ],
+      alergenos: ["alcohol"],
+      dietas: ["vegetariano", "sin gluten", "sin lacteos"],
+      picante: 0,
+      minutos: 5,
+      personas: 1,
+      perfil: ["dulce", "cítrico", "herbal", "aromático"],
+      combina: ["ceviche-camarones", "lomo-parrilla", "costillas-bbq"],
+      nota: "La versión sin alcohol cuesta lo mismo y lleva el mismo romero quemado.",
+      alias: ["coctel", "cocktail", "trago", "bebida", "ron", "copa"],
     },
   ],
 };

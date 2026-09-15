@@ -1,26 +1,31 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { AIAssistant } from "@/components/AIAssistant";
 
-const display = Playfair_Display({
+/**
+ * Dos fuentes, no más: una serif de alto contraste para los nombres de plato
+ * y una sans neutra para todo lo demás. Es el patrón que usan los menús de
+ * alta cocina, y Cormorant Garamond es prácticamente el estándar del sector.
+ */
+
+const display = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["600", "700"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-display",
   display: "swap",
 });
 
-const sans = Inter({
+const sans = DM_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "700"],
   variable: "--font-sans",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Menú Premium — Demo",
+  title: "Fogón Barinés — Carta",
   description:
-    "Software base de menú digital interactivo con QR, vista 3D y comanda en vivo para restaurantes.",
+    "Carta digital con vista 3D, prueba en tu mesa con realidad aumentada y pedido directo a cocina.",
 };
 
 export default function RootLayout({
@@ -30,10 +35,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`${display.variable} ${sans.variable}`}>
-      <body className="font-sans antialiased">
-        {children}
-        <AIAssistant />
-      </body>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   );
 }

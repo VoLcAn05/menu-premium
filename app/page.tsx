@@ -1,68 +1,82 @@
 import Link from "next/link";
 import { restaurant } from "@/lib/data";
 
-const LINKS = [
+const PANTALLAS = [
   {
     href: `/r/${restaurant.slug}?mesa=4`,
-    title: "1. Menú del cliente",
-    desc: "Lo que ve el comensal al escanear el QR de su mesa: fotos, info del plato, vista 3D en el plato estrella, y pedir directo desde el celular.",
-    cta: "Abrir como cliente en Mesa 4",
+    numero: "I",
+    titulo: "La carta del comensal",
+    texto:
+      "Lo que ve quien escanea el QR de su mesa. Cada plato se puede girar en 3D y proyectar sobre la mesa a tamaño real. El asistente responde sobre ingredientes, alérgenos y qué combina con qué.",
+    cta: "Abrir como cliente en la mesa 4",
   },
   {
     href: "/cocina",
-    title: "2. Panel de cocina (KDS)",
-    desc: "Lo que ve el restaurante en tiempo real: cada pedido aparece al instante con mesa, productos y notas, con sonido de alerta.",
-    cta: "Abrir panel de cocina",
+    numero: "II",
+    titulo: "Pantalla de cocina",
+    texto:
+      "El pedido entra al instante, con mesa, platos y notas, y suena una alerta. De nuevo a en preparación, listo y entregado, sin papel de por medio.",
+    cta: "Abrir la pantalla de cocina",
   },
   {
     href: "/admin/mesas",
-    title: "3. Códigos QR por mesa",
-    desc: "Genera e imprime un QR único por cada mesa del restaurante, listo para pegar en la mesa.",
-    cta: "Ver códigos QR",
+    numero: "III",
+    titulo: "Códigos QR por mesa",
+    texto:
+      "Un código por mesa, con el número ya codificado en el enlace, listo para imprimir y pegar.",
+    cta: "Ver los códigos",
   },
 ];
 
 export default function Home() {
   return (
-    <div className="min-h-screen px-5 py-14">
-      <div className="mx-auto max-w-2xl text-center">
-        <span className="inline-block rounded-full border border-gold/30 px-3 py-1 text-xs font-medium uppercase tracking-wide text-gold-light">
-          Software base · Demo
-        </span>
-        <h1 className="mt-4 font-display text-3xl font-bold text-cream sm:text-4xl">
-          Menú digital interactivo + comanda en vivo
-        </h1>
-        <p className="mt-3 text-cream/60">
-          Prototipo funcional para mostrarle a dueños de restaurantes en
-          Barinas: el cliente escanea, ve el menú (con fotos y vista 3D) y
-          pide desde su celular — la cocina lo recibe al instante, sin papel
-          y sin gritar la orden por la ventanilla.
+    <div className="min-h-screen px-6 py-16">
+      <header className="mx-auto max-w-xl text-center">
+        <p className="text-[0.68rem] uppercase tracking-seccion text-gold/70">
+          Demostración
         </p>
-      </div>
+        <h1 className="mt-4 font-display text-[2.8rem] font-light leading-[1.05] text-cream">
+          Carta digital con 3D,
+          <br />
+          asistente y comanda en vivo
+        </h1>
+        <p className="mx-auto mt-5 max-w-md text-[0.9rem] leading-relaxed text-cream/50">
+          El comensal escanea, mira el plato en tres dimensiones, lo prueba
+          sobre su propia mesa con la cámara, pregunta lo que quiera y pide
+          desde el teléfono. La cocina lo recibe al instante.
+        </p>
+        <div className="mx-auto mt-8 h-px w-12 bg-gold/35" />
+      </header>
 
-      <div className="mx-auto mt-10 grid max-w-2xl gap-4">
-        {LINKS.map((l) => (
+      <div className="mx-auto mt-14 max-w-xl space-y-10">
+        {PANTALLAS.map((p, i) => (
           <Link
-            key={l.href}
-            href={l.href}
-            className="group rounded-2xl border border-white/10 bg-charcoal/60 p-5 transition-colors hover:border-gold/40 hover:bg-charcoal"
+            key={p.href}
+            href={p.href}
+            className={`group block ${i > 0 ? "filete pt-10" : ""}`}
           >
-            <h2 className="font-display text-lg font-semibold text-cream">
-              {l.title}
+            <p className="font-display text-[0.9rem] text-gold/60">{p.numero}</p>
+            <h2 className="mt-1.5 font-display text-[1.5rem] font-normal leading-tight text-cream">
+              {p.titulo}
             </h2>
-            <p className="mt-1 text-sm text-cream/60">{l.desc}</p>
-            <span className="mt-3 inline-block text-sm font-semibold text-gold-light group-hover:underline">
-              {l.cta} →
+            <p className="mt-2 text-[0.875rem] leading-relaxed text-cream/50">
+              {p.texto}
+            </p>
+            <span className="mt-3 inline-block text-[0.8rem] text-gold-light group-hover:underline">
+              {p.cta} →
             </span>
           </Link>
         ))}
       </div>
 
-      <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-cream/30">
-        Tip para la demo en vivo: abre "Panel de cocina" en una laptop o
-        tablet, y "Menú del cliente" en tu celular. Pide algo y mira cómo
-        aparece al instante en la cocina.
-      </p>
+      <div className="filete mx-auto mt-16 max-w-xl pt-8">
+        <p className="text-[0.78rem] leading-relaxed text-cream/35">
+          Para enseñarlo en vivo: abre la pantalla de cocina en una laptop o
+          tablet donde el dueño la vea, y la carta en tu teléfono. Haz un
+          pedido de prueba y observa cómo entra al instante. Eso convence más
+          que cualquier captura.
+        </p>
+      </div>
     </div>
   );
 }
